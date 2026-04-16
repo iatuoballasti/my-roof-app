@@ -1,33 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Basic Map Start</title>
+    <title>Roof Measurement Pro - Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map { height: 500px; width: 100%; border: 2px solid #333; }
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        /* This sets up the main container to fill the whole screen */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; /* This is the magic command for the layout */
+        }
+
+        /* Sidebar Styling */
+        #sidebar {
+            width: 350px;
+            background-color: #1a1a1a; /* Dark tech theme */
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Map Styling */
+        #map {
+            flex-grow: 1; /* Tells the map to take up all remaining space */
+            height: 100%;
+        }
+
+        h2 { color: #00d4ff; font-size: 1.2rem; margin-bottom: 20px; }
+        
+        .stat-box {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .stat-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
+        .stat-value { font-size: 1.4rem; font-weight: bold; margin-top: 5px; }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #00d4ff;
+            color: black;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover { background: #0099bb; }
     </style>
 </head>
 <body>
-    <h1>My First Measurement Map</h1>
-    <p>Click the map to see coordinates!</p>
+
+    <div id="sidebar">
+        <h2>Roof Measurement</h2>
+        
+        <label class="stat-label">Project Address</label>
+        <input type="text" placeholder="Enter address...">
+
+        <div class="stat-box">
+            <div class="stat-label">Total Roof Area</div>
+            <div id="area-val" class="stat-value">0.00 sq ft</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-label">Estimated Pitch</div>
+            <div class="stat-value">6/12</div>
+        </div>
+
+        <button onclick="alert('Drawing tool activated!')">Start New Trace</button>
+    </div>
+
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // This initializes the map centered on a general location
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        // Initialize the map
+        var map = L.map('map').setView([37.7749, -122.4194], 18); // Centered on San Francisco
 
-        // This adds the "visual" satellite/map layer
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
+        // Add Satellite Imagery (using Esri World Imagery)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         }).addTo(map);
-
-        // This is a "listener" - it waits for you to click
-        map.on('click', function(e) {
-            alert("You clicked at: " + e.latlng.lat + ", " + e.latlng.lng);
-        });
     </script>
 </body>
 </html>
