@@ -1,105 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Roof Measurement Pro - Dashboard</title>
+    <title>Roof Measurement Pro - Drawing Mode</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        /* This sets up the main container to fill the whole screen */
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            height: 100%; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; /* This is the magic command for the layout */
-        }
-
-        /* Sidebar Styling */
-        #sidebar {
-            width: 350px;
-            background-color: #1a1a1a; /* Dark tech theme */
-            color: white;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Map Styling */
-        #map {
-            flex-grow: 1; /* Tells the map to take up all remaining space */
-            height: 100%;
-        }
-
-        h2 { color: #00d4ff; font-size: 1.2rem; margin-bottom: 20px; }
-        
-        .stat-box {
-            background: #2d2d2d;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #00d4ff;
-        }
-
-        .stat-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
-        .stat-value { font-size: 1.4rem; font-weight: bold; margin-top: 5px; }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            background: #333;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background: #00d4ff;
-            color: black;
-            border: none;
-            padding: 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover { background: #0099bb; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; display: flex; }
+        #sidebar { width: 300px; background: #1a1a1a; color: white; padding: 20px; z-index: 1000; }
+        #map { flex-grow: 1; height: 100%; cursor: crosshair; }
+        .stat-box { background: #2d2d2d; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #00d4ff; }
+        .stat-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; }
+        button { width: 100%; background: #00d4ff; border: none; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        button.reset { background: #ff4d4d; margin-top: 10px; color: white; }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
-        <h2>Roof Measurement</h2>
-        
-        <label class="stat-label">Project Address</label>
-        <input type="text" placeholder="Enter address...">
-
+        <h2 style="color:#00d4ff">Roof Trace</h2>
         <div class="stat-box">
-            <div class="stat-label">Total Roof Area</div>
-            <div id="area-val" class="stat-value">0.00 sq ft</div>
+            <div class="stat-label">Points Placed</div>
+            <div id="point-count" class="stat-value">0</div>
         </div>
-
         <div class="stat-box">
-            <div class="stat-label">Estimated Pitch</div>
-            <div class="stat-value">6/12</div>
+            <div class="stat-label">Instructions</div>
+            <p style="font-size: 0.8rem; color: #ccc;">Click on the roof corners to start tracing. The lines will connect automatically.</p>
         </div>
-
-        <button onclick="alert('Drawing tool activated!')">Start New Trace</button>
+        <button onclick="clearMap()" class="reset">Clear & Start Over</button>
     </div>
 
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Initialize the map
-        var map = L.map('map').setView([37.7749, -122.4194], 18); // Centered on San Francisco
+        // 1. Initialize Map
+        var map = L.map('map').setView([37.7749, -122.4194], 19); 
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
-        // Add Satellite Imagery (using Esri World Imagery)
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-        }).addTo(map);
+        // 2. Variables to store our drawing
+        var points = [];
+        var markers = [];
+        var polyline = L.polyline([], {color: '#00d4ff', weight: 3}).addTo(map);
+
+        // 3. The "Click to Draw" Logic
+        map.on('click', function(e) {
+            // Add point coordinates to our list
+            points.push(e.latlng);
+            
+            // Drop a small circle where we clicked
+            var dot = L.circleMarker(e.latlng, { radius: 5, color: '#fff', fillOpacity: 1 }).addTo(map);
+            markers.push(dot);
+
+            // Update the line on the map
+            polyline.setLatLngs(points);
+
+            // Update the sidebar count
+            document.getElementById('point-count').innerText = points.length;
+        });
+
+        // 4. Function to Reset
+        function clearMap() {
+            points = [];
+            polyline.setLatLngs([]);
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            document.getElementById('point-count').innerText = "0";
+        }
     </script>
 </body>
 </html>
