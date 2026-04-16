@@ -33,6 +33,8 @@
     <script>
         // Start Map
         var map = L.map('map').setView([37.7749, -122.4194], 18);
+        function goToAddress(lat, lng) {
+        map.setView([lat, lng], 19);
 
         // Satellite Layer
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
