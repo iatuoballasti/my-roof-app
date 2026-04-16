@@ -1,125 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Roof Measurement Pro</title>
+    <title>Roof Tracker Pro</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif; display: flex; }
-        
-        #sidebar { 
-            width: 320px; 
-            background: #1a1a1a; 
-            color: white; 
-            padding: 20px; 
-            z-index: 1000; 
-            display: flex; 
-            flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-        }
-
-        #map { flex-grow: 1; height: 100%; cursor: crosshair; }
-
+        body, html { margin: 0; padding: 0; height: 100%; display: flex; font-family: sans-serif; background: #000; }
+        #sidebar { width: 300px; background: #1a1a1a; color: white; padding: 20px; z-index: 1000; box-shadow: 2px 0 10px #000; }
+        #map { flex-grow: 1; height: 100%; background: #222; }
+        .stat-box { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #00d4ff; }
         h2 { color: #00d4ff; margin-top: 0; }
-        
-        .stat-box { 
-            background: #2d2d2d; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            border-left: 4px solid #00d4ff; 
-        }
-
-        .stat-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-value { font-size: 1.2rem; font-weight: bold; margin-top: 5px; }
-
-        button { 
-            width: 100%; 
-            background: #00d4ff; 
-            border: none; 
-            padding: 12px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            border-radius: 4px;
-            transition: 0.3s;
-        }
-
+        button { width: 100%; background: #00d4ff; border: none; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; }
         button:hover { background: #0099bb; }
-        button.reset { background: #ff4d4d; margin-top: 10px; color: white; }
-        button.reset:hover { background: #cc0000; }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
         <h2>Roof Trace v1.0</h2>
-        
         <div class="stat-box">
-            <div class="stat-label">Points Placed</div>
-            <div id="point-count" class="stat-value">0</div>
+            <div>Points Placed</div>
+            <div id="count" style="font-size: 1.5rem; font-weight: bold;">0</div>
         </div>
-
-        <div class="stat-box">
-            <div class="stat-label">Project Status</div>
-            <div class="stat-value" style="color: #00ff00; font-size: 0.9rem;">Active Drawing Mode</div>
-        </div>
-
-        <div style="flex-grow: 1;">
-            <p style="font-size: 0.85rem; color: #ccc; line-height: 1.4;">
-                <strong>Instructions:</strong><br>
-                1. Find a roof on the map.<br>
-                2. Click each corner to trace.<br>
-                3. Use "Reset" to start over.
-            </p>
-        </div>
-
-        <button onclick="clearMap()" class="reset">Clear Drawing</button>
+        <p style="font-size: 0.8rem; color: #aaa;">Click on the map to start tracing. Zoom in deep to see roof details.</p>
+        <button onclick="location.reload()">Reset Map</button>
     </div>
 
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 1. Initialize Map on a high-detail Satellite view
-        var map = L.map('map').setView([37.7749, -122.4194], 19); 
-        
+        // Start Map
+        var map = L.map('map').setView([37.7749, -122.4194], 18);
+
+        // Satellite Layer
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Esri, Maxar'
+            attribution: 'Esri'
         }).addTo(map);
 
-        // 2. Setup Drawing Storage
         var points = [];
-        var markers = [];
-        var polyline = L.polyline([], {color: '#00d4ff', weight: 4, opacity: 0.8}).addTo(map);
+        var polyline = L.polyline([], {color: '#00d4ff', weight: 4}).addTo(map);
 
-        // 3. Click Logic
         map.on('click', function(e) {
             points.push(e.latlng);
-            
-            // Add a visual dot
-            var dot = L.circleMarker(e.latlng, { 
-                radius: 4, 
-                color: '#fff', 
-                fillColor: '#00d4ff', 
-                fillOpacity: 1 
-            }).addTo(map);
-            
-            markers.push(dot);
-
-            // Update the line
+            L.circleMarker(e.latlng, { radius: 5, color: '#fff', fillColor: '#00d4ff', fillOpacity: 1 }).addTo(map);
             polyline.setLatLngs(points);
-
-            // Update sidebar
-            document.getElementById('point-count').innerText = points.length;
+            document.getElementById('count').innerText = points.length;
         });
-
-        // 4. Reset Logic
-        function clearMap() {
-            points = [];
-            polyline.setLatLngs([]);
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-            document.getElementById('point-count').innerText = "0";
-        }
     </script>
 </body>
 </html>
