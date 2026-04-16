@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Map Start</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 500px; width: 100%; border: 2px solid #333; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>My First Measurement Map</h1>
+    <p>Click the map to see coordinates!</p>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // This initializes the map centered on a general location
+        var map = L.map('map').setView([51.505, -0.09], 13);
+
+        // This adds the "visual" satellite/map layer
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // This is a "listener" - it waits for you to click
+        map.on('click', function(e) {
+            alert("You clicked at: " + e.latlng.lat + ", " + e.latlng.lng);
+        });
+    </script>
+</body>
+</html>
